@@ -1,6 +1,6 @@
 {
-  "name": "@2syncHQ/notion-sdk-js",
-  "version": "2.2.15",
+  "name": "@2sync/notion-sdk-js",
+  "version": "2.2.16",
   "description": "A simple and easy to use client for the Notion API",
   "engines": {
     "node": ">=12"
