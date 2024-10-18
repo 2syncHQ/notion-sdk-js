@@ -1,6 +1,4 @@
-// cspell:disable-file
-// Note: This is a generated file.
-
+/* cSpell:disable */
 type IdRequest = string | string
 
 export type PersonUserObjectResponse = {
@@ -661,10 +659,10 @@ type TimeZoneRequest =
   | "WET"
   | "Zulu"
 
-type DateResponse = {
+export type NotionDateResponse = {
   start: string
   end: string | null
-  time_zone: TimeZoneRequest | null
+  time_zone?: TimeZoneRequest | null
 }
 
 type StringRequest = string
@@ -673,7 +671,10 @@ type TextRequest = string
 
 type StringFormulaPropertyResponse = { type: "string"; string: string | null }
 
-type DateFormulaPropertyResponse = { type: "date"; date: DateResponse | null }
+type DateFormulaPropertyResponse = {
+  type: "date"
+  date: NotionDateResponse | null
+}
 
 type NumberFormulaPropertyResponse = { type: "number"; number: number | null }
 
@@ -696,7 +697,7 @@ type VerificationPropertyUnverifiedResponse = {
 
 type VerificationPropertyResponse = {
   state: "verified" | "expired"
-  date: DateResponse | null
+  date: NotionDateResponse | null
   verified_by:
     | { id: IdRequest }
     | null
@@ -739,40 +740,21 @@ type VerificationPropertyResponse = {
     | null
 }
 
-type AnnotationResponse = {
-  bold: boolean
-  italic: boolean
-  strikethrough: boolean
-  underline: boolean
-  code: boolean
-  color:
-    | "default"
-    | "gray"
-    | "brown"
-    | "orange"
-    | "yellow"
-    | "green"
-    | "blue"
-    | "purple"
-    | "pink"
-    | "red"
-    | "gray_background"
-    | "brown_background"
-    | "orange_background"
-    | "yellow_background"
-    | "green_background"
-    | "blue_background"
-    | "purple_background"
-    | "pink_background"
-    | "red_background"
+export type AnnotationResponse = {
+  bold?: boolean
+  italic?: boolean
+  strikethrough?: boolean
+  underline?: boolean
+  code?: boolean
+  color?: NotionColor
 }
 
 export type TextRichTextItemResponse = {
   type: "text"
   text: { content: string; link: { url: TextRequest } | null }
   annotations: AnnotationResponse
-  plain_text: string
-  href: string | null
+  normalized_text?: string
+  href?: string | null
 }
 
 type LinkPreviewMentionResponse = { url: TextRequest }
@@ -795,13 +777,13 @@ export type MentionRichTextItemResponse = {
   type: "mention"
   mention:
     | { type: "user"; user: PartialUserObjectResponse | UserObjectResponse }
-    | { type: "date"; date: DateResponse }
+    | { type: "date"; date: NotionDateResponse }
     | { type: "link_preview"; link_preview: LinkPreviewMentionResponse }
     | { type: "template_mention"; template_mention: TemplateMentionResponse }
     | { type: "page"; page: { id: IdRequest } }
     | { type: "database"; database: { id: IdRequest } }
   annotations: AnnotationResponse
-  plain_text: string
+  normalized_text: string
   href: string | null
 }
 
@@ -809,7 +791,7 @@ export type EquationRichTextItemResponse = {
   type: "equation"
   equation: { expression: TextRequest }
   annotations: AnnotationResponse
-  plain_text: string
+  normalized_text: string
   href: string | null
 }
 
@@ -4513,29 +4495,74 @@ type EmojiRequest =
   | "🏴󠁧󠁢󠁳󠁣󠁴󠁿"
   | "🏴󠁧󠁢󠁷󠁬󠁳󠁿"
 
-export type PageObjectResponse = {
-  parent:
-    | { type: "database_id"; database_id: string }
-    | { type: "page_id"; page_id: string }
-    | { type: "block_id"; block_id: string }
-    | { type: "workspace"; workspace: true }
-  properties: Record<
-    string,
-    | { type: "number"; number: number | null; id: string }
-    | { type: "url"; url: string | null; id: string }
-    | { type: "select"; select: PartialSelectResponse | null; id: string }
-    | {
-        type: "multi_select"
-        multi_select: Array<PartialSelectResponse>
-        id: string
+export enum NotionPropertyType {
+  NUMBER = "number",
+  URL = "url",
+  SELECT = "select",
+  MULTI_SELECT = "multi_select",
+  STATUS = "status",
+  DATE = "date",
+  EMAIL = "email",
+  PHONE_NUMBER = "phone_number",
+  CHECKBOX = "checkbox",
+  FILES = "files",
+  CREATED_BY = "created_by",
+  CREATED_TIME = "created_time",
+  LAST_EDITED_BY = "last_edited_by",
+  LAST_EDITED_TIME = "last_edited_time",
+  FORMULA = "formula",
+  BUTTON = "button",
+  UNIQUE_ID = "unique_id",
+  VERIFICATION = "verification",
+  TITLE = "title",
+  RICH_TEXT = "rich_text",
+  PEOPLE = "people",
+  RELATION = "relation",
+  ROLLUP = "rollup",
+}
+
+export type NotionProperty<T extends NotionPropertyType> =
+  T extends NotionPropertyType.NUMBER
+    ? { type: NotionPropertyType.NUMBER; number: number | null; id?: string }
+    : T extends NotionPropertyType.URL
+    ? { type: NotionPropertyType.URL; url: string | null; id?: string }
+    : T extends NotionPropertyType.SELECT
+    ? {
+        type: NotionPropertyType.SELECT
+        select: PartialSelectResponse | null
+        id?: string
       }
-    | { type: "status"; status: PartialSelectResponse | null; id: string }
-    | { type: "date"; date: DateResponse | null; id: string }
-    | { type: "email"; email: string | null; id: string }
-    | { type: "phone_number"; phone_number: string | null; id: string }
-    | { type: "checkbox"; checkbox: boolean; id: string }
-    | {
-        type: "files"
+    : T extends NotionPropertyType.MULTI_SELECT
+    ? {
+        type: NotionPropertyType.MULTI_SELECT
+        multi_select: Array<PartialSelectResponse>
+        id?: string
+      }
+    : T extends NotionPropertyType.STATUS
+    ? {
+        type: NotionPropertyType.STATUS
+        status: PartialSelectResponse | null
+        id?: string
+      }
+    : T extends NotionPropertyType.DATE
+    ? {
+        type: NotionPropertyType.DATE
+        date: NotionDateResponse | null
+        id?: string
+      }
+    : T extends NotionPropertyType.EMAIL
+    ? { type: NotionPropertyType.EMAIL; email: string | null; id?: string }
+    : T extends NotionPropertyType.PHONE_NUMBER
+    ? {
+        type: NotionPropertyType.PHONE_NUMBER
+        phone_number: string | null
+        id?: string
+      }
+    : T extends NotionPropertyType.CHECKBOX
+    ? { type: NotionPropertyType.CHECKBOX; checkbox: boolean; id?: string }
+    : T extends NotionPropertyType.FILES
+    ? {
+        type: NotionPropertyType.FILES
         files: Array<
           | {
               file: { url: string; expiry_time: string }
@@ -4548,124 +4575,113 @@ export type PageObjectResponse = {
               type?: "external"
             }
         >
-        id: string
+        id?: string
       }
-    | {
-        type: "created_by"
+    : T extends NotionPropertyType.CREATED_BY
+    ? {
+        type: NotionPropertyType.CREATED_BY
         created_by: PartialUserObjectResponse | UserObjectResponse
-        id: string
+        id?: string
       }
-    | { type: "created_time"; created_time: string; id: string }
-    | {
-        type: "last_edited_by"
+    : T extends NotionPropertyType.CREATED_TIME
+    ? {
+        type: NotionPropertyType.CREATED_TIME
+        created_time: string
+        id?: string
+      }
+    : T extends NotionPropertyType.LAST_EDITED_BY
+    ? {
+        type: NotionPropertyType.LAST_EDITED_BY
         last_edited_by: PartialUserObjectResponse | UserObjectResponse
-        id: string
+        id?: string
       }
-    | { type: "last_edited_time"; last_edited_time: string; id: string }
-    | { type: "formula"; formula: FormulaPropertyResponse; id: string }
-    | { type: "button"; button: Record<string, never>; id: string }
-    | {
-        type: "unique_id"
-        unique_id: { prefix: string | null; number: number | null }
-        id: string
+    : T extends NotionPropertyType.LAST_EDITED_TIME
+    ? {
+        type: NotionPropertyType.LAST_EDITED_TIME
+        last_edited_time: string
+        id?: string
       }
-    | {
-        type: "verification"
+    : T extends NotionPropertyType.FORMULA
+    ? {
+        type: NotionPropertyType.FORMULA
+        formula: FormulaPropertyResponse
+        id?: string
+      }
+    : T extends NotionPropertyType.BUTTON
+    ? {
+        type: NotionPropertyType.BUTTON
+        button: Record<string, never>
+        id?: string
+      }
+    : T extends NotionPropertyType.UNIQUE_ID
+    ? {
+        type: NotionPropertyType.UNIQUE_ID
+        unique_id?: { prefix: string | null; number: number | null }
+        id?: string
+      }
+    : T extends NotionPropertyType.VERIFICATION
+    ? {
+        type: NotionPropertyType.VERIFICATION
         verification:
           | VerificationPropertyUnverifiedResponse
           | null
           | VerificationPropertyResponse
           | null
-        id: string
+        id?: string
       }
-    | { type: "title"; title: Array<RichTextItemResponse>; id: string }
-    | { type: "rich_text"; rich_text: Array<RichTextItemResponse>; id: string }
-    | {
-        type: "people"
+    : T extends NotionPropertyType.TITLE
+    ? {
+        type: NotionPropertyType.TITLE
+        title: Array<TextRichTextItemResponse>
+        id?: string
+      }
+    : T extends NotionPropertyType.RICH_TEXT
+    ? {
+        type: NotionPropertyType.RICH_TEXT
+        rich_text: Array<TextRichTextItemResponse>
+        id?: string
+      }
+    : T extends NotionPropertyType.PEOPLE
+    ? {
+        type: NotionPropertyType.PEOPLE
         people: Array<PartialUserObjectResponse | UserObjectResponse>
-        id: string
+        id?: string
       }
-    | { type: "relation"; relation: Array<{ id: string }>; id: string }
-    | {
-        type: "rollup"
+    : T extends NotionPropertyType.RELATION
+    ? {
+        type: NotionPropertyType.RELATION
+        relation: Array<{ id?: string }>
+        id?: string
+      }
+    : T extends NotionPropertyType.ROLLUP
+    ? {
+        type: NotionPropertyType.ROLLUP
         rollup:
-          | { type: "number"; number: number | null; function: RollupFunction }
           | {
-              type: "date"
-              date: DateResponse | null
+              type: NotionPropertyType.NUMBER
+              number: number | null
+              function: RollupFunction
+            }
+          | {
+              type: NotionPropertyType.DATE
+              date: NotionDateResponse | null
               function: RollupFunction
             }
           | {
               type: "array"
-              array: Array<
-                | { type: "number"; number: number | null }
-                | { type: "url"; url: string | null }
-                | { type: "select"; select: PartialSelectResponse | null }
-                | {
-                    type: "multi_select"
-                    multi_select: Array<PartialSelectResponse>
-                  }
-                | { type: "status"; status: PartialSelectResponse | null }
-                | { type: "date"; date: DateResponse | null }
-                | { type: "email"; email: string | null }
-                | { type: "phone_number"; phone_number: string | null }
-                | { type: "checkbox"; checkbox: boolean }
-                | {
-                    type: "files"
-                    files: Array<
-                      | {
-                          file: { url: string; expiry_time: string }
-                          name: StringRequest
-                          type?: "file"
-                        }
-                      | {
-                          external: { url: TextRequest }
-                          name: StringRequest
-                          type?: "external"
-                        }
-                    >
-                  }
-                | {
-                    type: "created_by"
-                    created_by: PartialUserObjectResponse | UserObjectResponse
-                  }
-                | { type: "created_time"; created_time: string }
-                | {
-                    type: "last_edited_by"
-                    last_edited_by:
-                      | PartialUserObjectResponse
-                      | UserObjectResponse
-                  }
-                | { type: "last_edited_time"; last_edited_time: string }
-                | { type: "formula"; formula: FormulaPropertyResponse }
-                | { type: "button"; button: Record<string, never> }
-                | {
-                    type: "unique_id"
-                    unique_id: { prefix: string | null; number: number | null }
-                  }
-                | {
-                    type: "verification"
-                    verification:
-                      | VerificationPropertyUnverifiedResponse
-                      | null
-                      | VerificationPropertyResponse
-                      | null
-                  }
-                | { type: "title"; title: Array<RichTextItemResponse> }
-                | { type: "rich_text"; rich_text: Array<RichTextItemResponse> }
-                | {
-                    type: "people"
-                    people: Array<
-                      PartialUserObjectResponse | UserObjectResponse
-                    >
-                  }
-                | { type: "relation"; relation: Array<{ id: string }> }
-              >
+              array: Array<NotionProperty<NotionPropertyType>>
               function: RollupFunction
             }
-        id: string
+        id?: string
       }
-  >
+    : never
+export type PageObjectResponse = {
+  parent:
+    | { type: "database_id"; database_id: string }
+    | { type: "page_id"; page_id: string }
+    | { type: "block_id"; block_id: string }
+    | { type: "workspace"; workspace: true }
+  properties: Record<string, NotionProperty<NotionPropertyType>>
   icon:
     | { type: "emoji"; emoji: EmojiRequest }
     | null
@@ -5017,30 +5033,31 @@ export type DatabaseObjectResponse = {
 
 export type PartialBlockObjectResponse = { object: "block"; id: string }
 
-type ApiColor =
-  | "default"
-  | "gray"
-  | "brown"
-  | "orange"
-  | "yellow"
-  | "green"
-  | "blue"
-  | "purple"
-  | "pink"
-  | "red"
-  | "gray_background"
-  | "brown_background"
-  | "orange_background"
-  | "yellow_background"
-  | "green_background"
-  | "blue_background"
-  | "purple_background"
-  | "pink_background"
-  | "red_background"
+export enum NotionColor {
+  DEFAULT = "default",
+  GRAY = "gray",
+  BROWN = "brown",
+  ORANGE = "orange",
+  YELLOW = "yellow",
+  GREEN = "green",
+  BLUE = "blue",
+  PURPLE = "purple",
+  PINK = "pink",
+  RED = "red",
+  GRAY_BACKGROUND = "gray_background",
+  BROWN_BACKGROUND = "brown_background",
+  ORANGE_BACKGROUND = "orange_background",
+  YELLOW_BACKGROUND = "yellow_background",
+  GREEN_BACKGROUND = "green_background",
+  BLUE_BACKGROUND = "blue_background",
+  PURPLE_BACKGROUND = "purple_background",
+  PINK_BACKGROUND = "pink_background",
+  RED_BACKGROUND = "red_background",
+}
 
 export type ParagraphBlockObjectResponse = {
   type: "paragraph"
-  paragraph: { rich_text: Array<RichTextItemResponse>; color: ApiColor }
+  paragraph: { rich_text: Array<RichTextItemResponse>; color: NotionColor }
   parent:
     | { type: "database_id"; database_id: string }
     | { type: "page_id"; page_id: string }
@@ -5061,7 +5078,7 @@ export type Heading1BlockObjectResponse = {
   type: "heading_1"
   heading_1: {
     rich_text: Array<RichTextItemResponse>
-    color: ApiColor
+    color: NotionColor
     is_toggleable: boolean
   }
   parent:
@@ -5084,7 +5101,7 @@ export type Heading2BlockObjectResponse = {
   type: "heading_2"
   heading_2: {
     rich_text: Array<RichTextItemResponse>
-    color: ApiColor
+    color: NotionColor
     is_toggleable: boolean
   }
   parent:
@@ -5107,7 +5124,7 @@ export type Heading3BlockObjectResponse = {
   type: "heading_3"
   heading_3: {
     rich_text: Array<RichTextItemResponse>
-    color: ApiColor
+    color: NotionColor
     is_toggleable: boolean
   }
   parent:
@@ -5130,7 +5147,7 @@ export type BulletedListItemBlockObjectResponse = {
   type: "bulleted_list_item"
   bulleted_list_item: {
     rich_text: Array<RichTextItemResponse>
-    color: ApiColor
+    color: NotionColor
   }
   parent:
     | { type: "database_id"; database_id: string }
@@ -5152,7 +5169,7 @@ export type NumberedListItemBlockObjectResponse = {
   type: "numbered_list_item"
   numbered_list_item: {
     rich_text: Array<RichTextItemResponse>
-    color: ApiColor
+    color: NotionColor
   }
   parent:
     | { type: "database_id"; database_id: string }
@@ -5172,7 +5189,7 @@ export type NumberedListItemBlockObjectResponse = {
 
 export type QuoteBlockObjectResponse = {
   type: "quote"
-  quote: { rich_text: Array<RichTextItemResponse>; color: ApiColor }
+  quote: { rich_text: Array<RichTextItemResponse>; color: NotionColor }
   parent:
     | { type: "database_id"; database_id: string }
     | { type: "page_id"; page_id: string }
@@ -5193,7 +5210,7 @@ export type ToDoBlockObjectResponse = {
   type: "to_do"
   to_do: {
     rich_text: Array<RichTextItemResponse>
-    color: ApiColor
+    color: NotionColor
     checked: boolean
   }
   parent:
@@ -5214,7 +5231,7 @@ export type ToDoBlockObjectResponse = {
 
 export type ToggleBlockObjectResponse = {
   type: "toggle"
-  toggle: { rich_text: Array<RichTextItemResponse>; color: ApiColor }
+  toggle: { rich_text: Array<RichTextItemResponse>; color: NotionColor }
   parent:
     | { type: "database_id"; database_id: string }
     | { type: "page_id"; page_id: string }
@@ -5386,7 +5403,7 @@ type LanguageRequest =
   | "pascal"
   | "perl"
   | "php"
-  | "plain text"
+  | "normalized text"
   | "powershell"
   | "prolog"
   | "protobuf"
@@ -5443,7 +5460,7 @@ export type CalloutBlockObjectResponse = {
   type: "callout"
   callout: {
     rich_text: Array<RichTextItemResponse>
-    color: ApiColor
+    color: NotionColor
     icon:
       | { type: "emoji"; emoji: EmojiRequest }
       | null
@@ -5508,7 +5525,7 @@ export type BreadcrumbBlockObjectResponse = {
 
 export type TableOfContentsBlockObjectResponse = {
   type: "table_of_contents"
-  table_of_contents: { color: ApiColor }
+  table_of_contents: { color: NotionColor }
   parent:
     | { type: "database_id"; database_id: string }
     | { type: "page_id"; page_id: string }
@@ -5752,21 +5769,23 @@ export type PdfBlockObjectResponse = {
   in_trash: boolean
 }
 
+export type NotionFile =
+  | {
+      type: "external"
+      external: { url: TextRequest }
+      caption?: Array<RichTextItemResponse>
+      name: string
+    }
+  | {
+      type: "file"
+      file: { url: string; expiry_time: string }
+      caption?: Array<RichTextItemResponse>
+      name: string
+    }
+
 export type FileBlockObjectResponse = {
   type: "file"
-  file:
-    | {
-        type: "external"
-        external: { url: TextRequest }
-        caption: Array<RichTextItemResponse>
-        name: string
-      }
-    | {
-        type: "file"
-        file: { url: string; expiry_time: string }
-        caption: Array<RichTextItemResponse>
-        name: string
-      }
+  file: NotionFile
   parent:
     | { type: "database_id"; database_id: string }
     | { type: "page_id"; page_id: string }
@@ -5922,7 +5941,7 @@ export type StatusPropertyItemObjectResponse = {
 
 export type DatePropertyItemObjectResponse = {
   type: "date"
-  date: DateResponse | null
+  date: NotionDateResponse | null
   object: "property_item"
   id: string
 }
@@ -6054,7 +6073,11 @@ export type RollupPropertyItemObjectResponse = {
   type: "rollup"
   rollup:
     | { type: "number"; number: number | null; function: RollupFunction }
-    | { type: "date"; date: DateResponse | null; function: RollupFunction }
+    | {
+        type: "date"
+        date: NotionDateResponse | null
+        function: RollupFunction
+      }
     | { type: "array"; array: Array<EmptyObject>; function: RollupFunction }
     | {
         type: "unsupported"
@@ -6134,7 +6157,7 @@ export type PropertyItemPropertyItemListResponse = {
           | { type: "number"; number: number | null; function: RollupFunction }
           | {
               type: "date"
-              date: DateResponse | null
+              date: NotionDateResponse | null
               function: RollupFunction
             }
           | {
@@ -6173,38 +6196,21 @@ type TemplateMentionRequest =
   | { template_mention_date: "today" | "now"; type?: "template_mention_date" }
   | { template_mention_user: "me"; type?: "template_mention_user" }
 
+export type TextRichTextItemRequest = {
+  text: { content: string; link?: { url: TextRequest } | null }
+  type?: "text"
+  annotations?: {
+    bold?: boolean
+    italic?: boolean
+    strikethrough?: boolean
+    underline?: boolean
+    code?: boolean
+    color?: NotionColor
+  }
+}
+
 type RichTextItemRequest =
-  | {
-      text: { content: string; link?: { url: TextRequest } | null }
-      type?: "text"
-      annotations?: {
-        bold?: boolean
-        italic?: boolean
-        strikethrough?: boolean
-        underline?: boolean
-        code?: boolean
-        color?:
-          | "default"
-          | "gray"
-          | "brown"
-          | "orange"
-          | "yellow"
-          | "green"
-          | "blue"
-          | "purple"
-          | "pink"
-          | "red"
-          | "gray_background"
-          | "brown_background"
-          | "orange_background"
-          | "yellow_background"
-          | "green_background"
-          | "blue_background"
-          | "purple_background"
-          | "pink_background"
-          | "red_background"
-      }
-    }
+  | TextRichTextItemRequest
   | {
       mention:
         | {
@@ -6381,7 +6387,7 @@ export type BlockObjectRequestWithoutChildren =
   | { divider: EmptyObject; type?: "divider"; object?: "block" }
   | { breadcrumb: EmptyObject; type?: "breadcrumb"; object?: "block" }
   | {
-      table_of_contents: { color?: ApiColor }
+      table_of_contents: { color?: NotionColor }
       type?: "table_of_contents"
       object?: "block"
     }
@@ -6401,7 +6407,7 @@ export type BlockObjectRequestWithoutChildren =
   | {
       heading_1: {
         rich_text: Array<RichTextItemRequest>
-        color?: ApiColor
+        color?: NotionColor
         is_toggleable?: boolean
       }
       type?: "heading_1"
@@ -6410,7 +6416,7 @@ export type BlockObjectRequestWithoutChildren =
   | {
       heading_2: {
         rich_text: Array<RichTextItemRequest>
-        color?: ApiColor
+        color?: NotionColor
         is_toggleable?: boolean
       }
       type?: "heading_2"
@@ -6419,21 +6425,21 @@ export type BlockObjectRequestWithoutChildren =
   | {
       heading_3: {
         rich_text: Array<RichTextItemRequest>
-        color?: ApiColor
+        color?: NotionColor
         is_toggleable?: boolean
       }
       type?: "heading_3"
       object?: "block"
     }
   | {
-      paragraph: { rich_text: Array<RichTextItemRequest>; color?: ApiColor }
+      paragraph: { rich_text: Array<RichTextItemRequest>; color?: NotionColor }
       type?: "paragraph"
       object?: "block"
     }
   | {
       bulleted_list_item: {
         rich_text: Array<RichTextItemRequest>
-        color?: ApiColor
+        color?: NotionColor
       }
       type?: "bulleted_list_item"
       object?: "block"
@@ -6441,13 +6447,13 @@ export type BlockObjectRequestWithoutChildren =
   | {
       numbered_list_item: {
         rich_text: Array<RichTextItemRequest>
-        color?: ApiColor
+        color?: NotionColor
       }
       type?: "numbered_list_item"
       object?: "block"
     }
   | {
-      quote: { rich_text: Array<RichTextItemRequest>; color?: ApiColor }
+      quote: { rich_text: Array<RichTextItemRequest>; color?: NotionColor }
       type?: "quote"
       object?: "block"
     }
@@ -6455,13 +6461,13 @@ export type BlockObjectRequestWithoutChildren =
       to_do: {
         rich_text: Array<RichTextItemRequest>
         checked?: boolean
-        color?: ApiColor
+        color?: NotionColor
       }
       type?: "to_do"
       object?: "block"
     }
   | {
-      toggle: { rich_text: Array<RichTextItemRequest>; color?: ApiColor }
+      toggle: { rich_text: Array<RichTextItemRequest>; color?: NotionColor }
       type?: "toggle"
       object?: "block"
     }
@@ -6476,7 +6482,7 @@ export type BlockObjectRequestWithoutChildren =
         icon?:
           | { emoji: EmojiRequest; type?: "emoji" }
           | { external: { url: TextRequest }; type?: "external" }
-        color?: ApiColor
+        color?: NotionColor
       }
       type?: "callout"
       object?: "block"
@@ -6559,7 +6565,7 @@ export type BlockObjectRequest =
   | { divider: EmptyObject; type?: "divider"; object?: "block" }
   | { breadcrumb: EmptyObject; type?: "breadcrumb"; object?: "block" }
   | {
-      table_of_contents: { color?: ApiColor }
+      table_of_contents: { color?: NotionColor }
       type?: "table_of_contents"
       object?: "block"
     }
@@ -6675,7 +6681,7 @@ export type BlockObjectRequest =
                   object?: "block"
                 }
               | {
-                  table_of_contents: { color?: ApiColor }
+                  table_of_contents: { color?: NotionColor }
                   type?: "table_of_contents"
                   object?: "block"
                 }
@@ -6695,7 +6701,7 @@ export type BlockObjectRequest =
               | {
                   heading_1: {
                     rich_text: Array<RichTextItemRequest>
-                    color?: ApiColor
+                    color?: NotionColor
                     is_toggleable?: boolean
                     children?: Array<BlockObjectRequestWithoutChildren>
                   }
@@ -6705,7 +6711,7 @@ export type BlockObjectRequest =
               | {
                   heading_2: {
                     rich_text: Array<RichTextItemRequest>
-                    color?: ApiColor
+                    color?: NotionColor
                     is_toggleable?: boolean
                     children?: Array<BlockObjectRequestWithoutChildren>
                   }
@@ -6715,7 +6721,7 @@ export type BlockObjectRequest =
               | {
                   heading_3: {
                     rich_text: Array<RichTextItemRequest>
-                    color?: ApiColor
+                    color?: NotionColor
                     is_toggleable?: boolean
                     children?: Array<BlockObjectRequestWithoutChildren>
                   }
@@ -6725,7 +6731,7 @@ export type BlockObjectRequest =
               | {
                   paragraph: {
                     rich_text: Array<RichTextItemRequest>
-                    color?: ApiColor
+                    color?: NotionColor
                     children?: Array<BlockObjectRequestWithoutChildren>
                   }
                   type?: "paragraph"
@@ -6734,7 +6740,7 @@ export type BlockObjectRequest =
               | {
                   bulleted_list_item: {
                     rich_text: Array<RichTextItemRequest>
-                    color?: ApiColor
+                    color?: NotionColor
                     children?: Array<BlockObjectRequestWithoutChildren>
                   }
                   type?: "bulleted_list_item"
@@ -6743,7 +6749,7 @@ export type BlockObjectRequest =
               | {
                   numbered_list_item: {
                     rich_text: Array<RichTextItemRequest>
-                    color?: ApiColor
+                    color?: NotionColor
                     children?: Array<BlockObjectRequestWithoutChildren>
                   }
                   type?: "numbered_list_item"
@@ -6752,7 +6758,7 @@ export type BlockObjectRequest =
               | {
                   quote: {
                     rich_text: Array<RichTextItemRequest>
-                    color?: ApiColor
+                    color?: NotionColor
                     children?: Array<BlockObjectRequestWithoutChildren>
                   }
                   type?: "quote"
@@ -6775,7 +6781,7 @@ export type BlockObjectRequest =
               | {
                   to_do: {
                     rich_text: Array<RichTextItemRequest>
-                    color?: ApiColor
+                    color?: NotionColor
                     children?: Array<BlockObjectRequestWithoutChildren>
                     checked?: boolean
                   }
@@ -6785,7 +6791,7 @@ export type BlockObjectRequest =
               | {
                   toggle: {
                     rich_text: Array<RichTextItemRequest>
-                    color?: ApiColor
+                    color?: NotionColor
                     children?: Array<BlockObjectRequestWithoutChildren>
                   }
                   type?: "toggle"
@@ -6802,7 +6808,7 @@ export type BlockObjectRequest =
               | {
                   callout: {
                     rich_text: Array<RichTextItemRequest>
-                    color?: ApiColor
+                    color?: NotionColor
                     children?: Array<BlockObjectRequestWithoutChildren>
                     icon?:
                       | { emoji: EmojiRequest; type?: "emoji" }
@@ -6907,7 +6913,7 @@ export type BlockObjectRequest =
           | { divider: EmptyObject; type?: "divider"; object?: "block" }
           | { breadcrumb: EmptyObject; type?: "breadcrumb"; object?: "block" }
           | {
-              table_of_contents: { color?: ApiColor }
+              table_of_contents: { color?: NotionColor }
               type?: "table_of_contents"
               object?: "block"
             }
@@ -6927,7 +6933,7 @@ export type BlockObjectRequest =
           | {
               heading_1: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -6937,7 +6943,7 @@ export type BlockObjectRequest =
           | {
               heading_2: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -6947,7 +6953,7 @@ export type BlockObjectRequest =
           | {
               heading_3: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -6957,7 +6963,7 @@ export type BlockObjectRequest =
           | {
               paragraph: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "paragraph"
@@ -6966,7 +6972,7 @@ export type BlockObjectRequest =
           | {
               bulleted_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "bulleted_list_item"
@@ -6975,7 +6981,7 @@ export type BlockObjectRequest =
           | {
               numbered_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "numbered_list_item"
@@ -6984,7 +6990,7 @@ export type BlockObjectRequest =
           | {
               quote: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "quote"
@@ -7007,7 +7013,7 @@ export type BlockObjectRequest =
           | {
               to_do: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 checked?: boolean
               }
@@ -7017,7 +7023,7 @@ export type BlockObjectRequest =
           | {
               toggle: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "toggle"
@@ -7034,7 +7040,7 @@ export type BlockObjectRequest =
           | {
               callout: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 icon?:
                   | { emoji: EmojiRequest; type?: "emoji" }
@@ -7059,7 +7065,7 @@ export type BlockObjectRequest =
   | {
       heading_1: {
         rich_text: Array<RichTextItemRequest>
-        color?: ApiColor
+        color?: NotionColor
         is_toggleable?: boolean
         children?: Array<
           | {
@@ -7135,7 +7141,7 @@ export type BlockObjectRequest =
           | { divider: EmptyObject; type?: "divider"; object?: "block" }
           | { breadcrumb: EmptyObject; type?: "breadcrumb"; object?: "block" }
           | {
-              table_of_contents: { color?: ApiColor }
+              table_of_contents: { color?: NotionColor }
               type?: "table_of_contents"
               object?: "block"
             }
@@ -7155,7 +7161,7 @@ export type BlockObjectRequest =
           | {
               heading_1: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -7165,7 +7171,7 @@ export type BlockObjectRequest =
           | {
               heading_2: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -7175,7 +7181,7 @@ export type BlockObjectRequest =
           | {
               heading_3: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -7185,7 +7191,7 @@ export type BlockObjectRequest =
           | {
               paragraph: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "paragraph"
@@ -7194,7 +7200,7 @@ export type BlockObjectRequest =
           | {
               bulleted_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "bulleted_list_item"
@@ -7203,7 +7209,7 @@ export type BlockObjectRequest =
           | {
               numbered_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "numbered_list_item"
@@ -7212,7 +7218,7 @@ export type BlockObjectRequest =
           | {
               quote: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "quote"
@@ -7235,7 +7241,7 @@ export type BlockObjectRequest =
           | {
               to_do: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 checked?: boolean
               }
@@ -7245,7 +7251,7 @@ export type BlockObjectRequest =
           | {
               toggle: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "toggle"
@@ -7262,7 +7268,7 @@ export type BlockObjectRequest =
           | {
               callout: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 icon?:
                   | { emoji: EmojiRequest; type?: "emoji" }
@@ -7287,7 +7293,7 @@ export type BlockObjectRequest =
   | {
       heading_2: {
         rich_text: Array<RichTextItemRequest>
-        color?: ApiColor
+        color?: NotionColor
         is_toggleable?: boolean
         children?: Array<
           | {
@@ -7363,7 +7369,7 @@ export type BlockObjectRequest =
           | { divider: EmptyObject; type?: "divider"; object?: "block" }
           | { breadcrumb: EmptyObject; type?: "breadcrumb"; object?: "block" }
           | {
-              table_of_contents: { color?: ApiColor }
+              table_of_contents: { color?: NotionColor }
               type?: "table_of_contents"
               object?: "block"
             }
@@ -7383,7 +7389,7 @@ export type BlockObjectRequest =
           | {
               heading_1: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -7393,7 +7399,7 @@ export type BlockObjectRequest =
           | {
               heading_2: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -7403,7 +7409,7 @@ export type BlockObjectRequest =
           | {
               heading_3: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -7413,7 +7419,7 @@ export type BlockObjectRequest =
           | {
               paragraph: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "paragraph"
@@ -7422,7 +7428,7 @@ export type BlockObjectRequest =
           | {
               bulleted_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "bulleted_list_item"
@@ -7431,7 +7437,7 @@ export type BlockObjectRequest =
           | {
               numbered_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "numbered_list_item"
@@ -7440,7 +7446,7 @@ export type BlockObjectRequest =
           | {
               quote: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "quote"
@@ -7463,7 +7469,7 @@ export type BlockObjectRequest =
           | {
               to_do: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 checked?: boolean
               }
@@ -7473,7 +7479,7 @@ export type BlockObjectRequest =
           | {
               toggle: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "toggle"
@@ -7490,7 +7496,7 @@ export type BlockObjectRequest =
           | {
               callout: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 icon?:
                   | { emoji: EmojiRequest; type?: "emoji" }
@@ -7515,7 +7521,7 @@ export type BlockObjectRequest =
   | {
       heading_3: {
         rich_text: Array<RichTextItemRequest>
-        color?: ApiColor
+        color?: NotionColor
         is_toggleable?: boolean
         children?: Array<
           | {
@@ -7591,7 +7597,7 @@ export type BlockObjectRequest =
           | { divider: EmptyObject; type?: "divider"; object?: "block" }
           | { breadcrumb: EmptyObject; type?: "breadcrumb"; object?: "block" }
           | {
-              table_of_contents: { color?: ApiColor }
+              table_of_contents: { color?: NotionColor }
               type?: "table_of_contents"
               object?: "block"
             }
@@ -7611,7 +7617,7 @@ export type BlockObjectRequest =
           | {
               heading_1: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -7621,7 +7627,7 @@ export type BlockObjectRequest =
           | {
               heading_2: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -7631,7 +7637,7 @@ export type BlockObjectRequest =
           | {
               heading_3: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -7641,7 +7647,7 @@ export type BlockObjectRequest =
           | {
               paragraph: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "paragraph"
@@ -7650,7 +7656,7 @@ export type BlockObjectRequest =
           | {
               bulleted_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "bulleted_list_item"
@@ -7659,7 +7665,7 @@ export type BlockObjectRequest =
           | {
               numbered_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "numbered_list_item"
@@ -7668,7 +7674,7 @@ export type BlockObjectRequest =
           | {
               quote: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "quote"
@@ -7691,7 +7697,7 @@ export type BlockObjectRequest =
           | {
               to_do: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 checked?: boolean
               }
@@ -7701,7 +7707,7 @@ export type BlockObjectRequest =
           | {
               toggle: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "toggle"
@@ -7718,7 +7724,7 @@ export type BlockObjectRequest =
           | {
               callout: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 icon?:
                   | { emoji: EmojiRequest; type?: "emoji" }
@@ -7743,7 +7749,7 @@ export type BlockObjectRequest =
   | {
       paragraph: {
         rich_text: Array<RichTextItemRequest>
-        color?: ApiColor
+        color?: NotionColor
         children?: Array<
           | {
               embed: { url: string; caption?: Array<RichTextItemRequest> }
@@ -7818,7 +7824,7 @@ export type BlockObjectRequest =
           | { divider: EmptyObject; type?: "divider"; object?: "block" }
           | { breadcrumb: EmptyObject; type?: "breadcrumb"; object?: "block" }
           | {
-              table_of_contents: { color?: ApiColor }
+              table_of_contents: { color?: NotionColor }
               type?: "table_of_contents"
               object?: "block"
             }
@@ -7838,7 +7844,7 @@ export type BlockObjectRequest =
           | {
               heading_1: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -7848,7 +7854,7 @@ export type BlockObjectRequest =
           | {
               heading_2: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -7858,7 +7864,7 @@ export type BlockObjectRequest =
           | {
               heading_3: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -7868,7 +7874,7 @@ export type BlockObjectRequest =
           | {
               paragraph: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "paragraph"
@@ -7877,7 +7883,7 @@ export type BlockObjectRequest =
           | {
               bulleted_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "bulleted_list_item"
@@ -7886,7 +7892,7 @@ export type BlockObjectRequest =
           | {
               numbered_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "numbered_list_item"
@@ -7895,7 +7901,7 @@ export type BlockObjectRequest =
           | {
               quote: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "quote"
@@ -7918,7 +7924,7 @@ export type BlockObjectRequest =
           | {
               to_do: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 checked?: boolean
               }
@@ -7928,7 +7934,7 @@ export type BlockObjectRequest =
           | {
               toggle: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "toggle"
@@ -7945,7 +7951,7 @@ export type BlockObjectRequest =
           | {
               callout: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 icon?:
                   | { emoji: EmojiRequest; type?: "emoji" }
@@ -7970,7 +7976,7 @@ export type BlockObjectRequest =
   | {
       bulleted_list_item: {
         rich_text: Array<RichTextItemRequest>
-        color?: ApiColor
+        color?: NotionColor
         children?: Array<
           | {
               embed: { url: string; caption?: Array<RichTextItemRequest> }
@@ -8045,7 +8051,7 @@ export type BlockObjectRequest =
           | { divider: EmptyObject; type?: "divider"; object?: "block" }
           | { breadcrumb: EmptyObject; type?: "breadcrumb"; object?: "block" }
           | {
-              table_of_contents: { color?: ApiColor }
+              table_of_contents: { color?: NotionColor }
               type?: "table_of_contents"
               object?: "block"
             }
@@ -8065,7 +8071,7 @@ export type BlockObjectRequest =
           | {
               heading_1: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -8075,7 +8081,7 @@ export type BlockObjectRequest =
           | {
               heading_2: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -8085,7 +8091,7 @@ export type BlockObjectRequest =
           | {
               heading_3: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -8095,7 +8101,7 @@ export type BlockObjectRequest =
           | {
               paragraph: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "paragraph"
@@ -8104,7 +8110,7 @@ export type BlockObjectRequest =
           | {
               bulleted_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "bulleted_list_item"
@@ -8113,7 +8119,7 @@ export type BlockObjectRequest =
           | {
               numbered_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "numbered_list_item"
@@ -8122,7 +8128,7 @@ export type BlockObjectRequest =
           | {
               quote: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "quote"
@@ -8145,7 +8151,7 @@ export type BlockObjectRequest =
           | {
               to_do: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 checked?: boolean
               }
@@ -8155,7 +8161,7 @@ export type BlockObjectRequest =
           | {
               toggle: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "toggle"
@@ -8172,7 +8178,7 @@ export type BlockObjectRequest =
           | {
               callout: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 icon?:
                   | { emoji: EmojiRequest; type?: "emoji" }
@@ -8197,7 +8203,7 @@ export type BlockObjectRequest =
   | {
       numbered_list_item: {
         rich_text: Array<RichTextItemRequest>
-        color?: ApiColor
+        color?: NotionColor
         children?: Array<
           | {
               embed: { url: string; caption?: Array<RichTextItemRequest> }
@@ -8272,7 +8278,7 @@ export type BlockObjectRequest =
           | { divider: EmptyObject; type?: "divider"; object?: "block" }
           | { breadcrumb: EmptyObject; type?: "breadcrumb"; object?: "block" }
           | {
-              table_of_contents: { color?: ApiColor }
+              table_of_contents: { color?: NotionColor }
               type?: "table_of_contents"
               object?: "block"
             }
@@ -8292,7 +8298,7 @@ export type BlockObjectRequest =
           | {
               heading_1: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -8302,7 +8308,7 @@ export type BlockObjectRequest =
           | {
               heading_2: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -8312,7 +8318,7 @@ export type BlockObjectRequest =
           | {
               heading_3: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -8322,7 +8328,7 @@ export type BlockObjectRequest =
           | {
               paragraph: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "paragraph"
@@ -8331,7 +8337,7 @@ export type BlockObjectRequest =
           | {
               bulleted_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "bulleted_list_item"
@@ -8340,7 +8346,7 @@ export type BlockObjectRequest =
           | {
               numbered_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "numbered_list_item"
@@ -8349,7 +8355,7 @@ export type BlockObjectRequest =
           | {
               quote: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "quote"
@@ -8372,7 +8378,7 @@ export type BlockObjectRequest =
           | {
               to_do: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 checked?: boolean
               }
@@ -8382,7 +8388,7 @@ export type BlockObjectRequest =
           | {
               toggle: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "toggle"
@@ -8399,7 +8405,7 @@ export type BlockObjectRequest =
           | {
               callout: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 icon?:
                   | { emoji: EmojiRequest; type?: "emoji" }
@@ -8424,7 +8430,7 @@ export type BlockObjectRequest =
   | {
       quote: {
         rich_text: Array<RichTextItemRequest>
-        color?: ApiColor
+        color?: NotionColor
         children?: Array<
           | {
               embed: { url: string; caption?: Array<RichTextItemRequest> }
@@ -8499,7 +8505,7 @@ export type BlockObjectRequest =
           | { divider: EmptyObject; type?: "divider"; object?: "block" }
           | { breadcrumb: EmptyObject; type?: "breadcrumb"; object?: "block" }
           | {
-              table_of_contents: { color?: ApiColor }
+              table_of_contents: { color?: NotionColor }
               type?: "table_of_contents"
               object?: "block"
             }
@@ -8519,7 +8525,7 @@ export type BlockObjectRequest =
           | {
               heading_1: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -8529,7 +8535,7 @@ export type BlockObjectRequest =
           | {
               heading_2: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -8539,7 +8545,7 @@ export type BlockObjectRequest =
           | {
               heading_3: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -8549,7 +8555,7 @@ export type BlockObjectRequest =
           | {
               paragraph: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "paragraph"
@@ -8558,7 +8564,7 @@ export type BlockObjectRequest =
           | {
               bulleted_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "bulleted_list_item"
@@ -8567,7 +8573,7 @@ export type BlockObjectRequest =
           | {
               numbered_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "numbered_list_item"
@@ -8576,7 +8582,7 @@ export type BlockObjectRequest =
           | {
               quote: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "quote"
@@ -8599,7 +8605,7 @@ export type BlockObjectRequest =
           | {
               to_do: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 checked?: boolean
               }
@@ -8609,7 +8615,7 @@ export type BlockObjectRequest =
           | {
               toggle: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "toggle"
@@ -8626,7 +8632,7 @@ export type BlockObjectRequest =
           | {
               callout: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 icon?:
                   | { emoji: EmojiRequest; type?: "emoji" }
@@ -8651,7 +8657,7 @@ export type BlockObjectRequest =
   | {
       to_do: {
         rich_text: Array<RichTextItemRequest>
-        color?: ApiColor
+        color?: NotionColor
         children?: Array<
           | {
               embed: { url: string; caption?: Array<RichTextItemRequest> }
@@ -8726,7 +8732,7 @@ export type BlockObjectRequest =
           | { divider: EmptyObject; type?: "divider"; object?: "block" }
           | { breadcrumb: EmptyObject; type?: "breadcrumb"; object?: "block" }
           | {
-              table_of_contents: { color?: ApiColor }
+              table_of_contents: { color?: NotionColor }
               type?: "table_of_contents"
               object?: "block"
             }
@@ -8746,7 +8752,7 @@ export type BlockObjectRequest =
           | {
               heading_1: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -8756,7 +8762,7 @@ export type BlockObjectRequest =
           | {
               heading_2: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -8766,7 +8772,7 @@ export type BlockObjectRequest =
           | {
               heading_3: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -8776,7 +8782,7 @@ export type BlockObjectRequest =
           | {
               paragraph: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "paragraph"
@@ -8785,7 +8791,7 @@ export type BlockObjectRequest =
           | {
               bulleted_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "bulleted_list_item"
@@ -8794,7 +8800,7 @@ export type BlockObjectRequest =
           | {
               numbered_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "numbered_list_item"
@@ -8803,7 +8809,7 @@ export type BlockObjectRequest =
           | {
               quote: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "quote"
@@ -8826,7 +8832,7 @@ export type BlockObjectRequest =
           | {
               to_do: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 checked?: boolean
               }
@@ -8836,7 +8842,7 @@ export type BlockObjectRequest =
           | {
               toggle: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "toggle"
@@ -8853,7 +8859,7 @@ export type BlockObjectRequest =
           | {
               callout: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 icon?:
                   | { emoji: EmojiRequest; type?: "emoji" }
@@ -8879,7 +8885,7 @@ export type BlockObjectRequest =
   | {
       toggle: {
         rich_text: Array<RichTextItemRequest>
-        color?: ApiColor
+        color?: NotionColor
         children?: Array<
           | {
               embed: { url: string; caption?: Array<RichTextItemRequest> }
@@ -8954,7 +8960,7 @@ export type BlockObjectRequest =
           | { divider: EmptyObject; type?: "divider"; object?: "block" }
           | { breadcrumb: EmptyObject; type?: "breadcrumb"; object?: "block" }
           | {
-              table_of_contents: { color?: ApiColor }
+              table_of_contents: { color?: NotionColor }
               type?: "table_of_contents"
               object?: "block"
             }
@@ -8974,7 +8980,7 @@ export type BlockObjectRequest =
           | {
               heading_1: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -8984,7 +8990,7 @@ export type BlockObjectRequest =
           | {
               heading_2: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -8994,7 +9000,7 @@ export type BlockObjectRequest =
           | {
               heading_3: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -9004,7 +9010,7 @@ export type BlockObjectRequest =
           | {
               paragraph: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "paragraph"
@@ -9013,7 +9019,7 @@ export type BlockObjectRequest =
           | {
               bulleted_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "bulleted_list_item"
@@ -9022,7 +9028,7 @@ export type BlockObjectRequest =
           | {
               numbered_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "numbered_list_item"
@@ -9031,7 +9037,7 @@ export type BlockObjectRequest =
           | {
               quote: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "quote"
@@ -9054,7 +9060,7 @@ export type BlockObjectRequest =
           | {
               to_do: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 checked?: boolean
               }
@@ -9064,7 +9070,7 @@ export type BlockObjectRequest =
           | {
               toggle: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "toggle"
@@ -9081,7 +9087,7 @@ export type BlockObjectRequest =
           | {
               callout: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 icon?:
                   | { emoji: EmojiRequest; type?: "emoji" }
@@ -9180,7 +9186,7 @@ export type BlockObjectRequest =
           | { divider: EmptyObject; type?: "divider"; object?: "block" }
           | { breadcrumb: EmptyObject; type?: "breadcrumb"; object?: "block" }
           | {
-              table_of_contents: { color?: ApiColor }
+              table_of_contents: { color?: NotionColor }
               type?: "table_of_contents"
               object?: "block"
             }
@@ -9200,7 +9206,7 @@ export type BlockObjectRequest =
           | {
               heading_1: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -9210,7 +9216,7 @@ export type BlockObjectRequest =
           | {
               heading_2: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -9220,7 +9226,7 @@ export type BlockObjectRequest =
           | {
               heading_3: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -9230,7 +9236,7 @@ export type BlockObjectRequest =
           | {
               paragraph: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "paragraph"
@@ -9239,7 +9245,7 @@ export type BlockObjectRequest =
           | {
               bulleted_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "bulleted_list_item"
@@ -9248,7 +9254,7 @@ export type BlockObjectRequest =
           | {
               numbered_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "numbered_list_item"
@@ -9257,7 +9263,7 @@ export type BlockObjectRequest =
           | {
               quote: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "quote"
@@ -9280,7 +9286,7 @@ export type BlockObjectRequest =
           | {
               to_do: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 checked?: boolean
               }
@@ -9290,7 +9296,7 @@ export type BlockObjectRequest =
           | {
               toggle: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "toggle"
@@ -9307,7 +9313,7 @@ export type BlockObjectRequest =
           | {
               callout: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 icon?:
                   | { emoji: EmojiRequest; type?: "emoji" }
@@ -9332,7 +9338,7 @@ export type BlockObjectRequest =
   | {
       callout: {
         rich_text: Array<RichTextItemRequest>
-        color?: ApiColor
+        color?: NotionColor
         children?: Array<
           | {
               embed: { url: string; caption?: Array<RichTextItemRequest> }
@@ -9407,7 +9413,7 @@ export type BlockObjectRequest =
           | { divider: EmptyObject; type?: "divider"; object?: "block" }
           | { breadcrumb: EmptyObject; type?: "breadcrumb"; object?: "block" }
           | {
-              table_of_contents: { color?: ApiColor }
+              table_of_contents: { color?: NotionColor }
               type?: "table_of_contents"
               object?: "block"
             }
@@ -9427,7 +9433,7 @@ export type BlockObjectRequest =
           | {
               heading_1: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -9437,7 +9443,7 @@ export type BlockObjectRequest =
           | {
               heading_2: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -9447,7 +9453,7 @@ export type BlockObjectRequest =
           | {
               heading_3: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -9457,7 +9463,7 @@ export type BlockObjectRequest =
           | {
               paragraph: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "paragraph"
@@ -9466,7 +9472,7 @@ export type BlockObjectRequest =
           | {
               bulleted_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "bulleted_list_item"
@@ -9475,7 +9481,7 @@ export type BlockObjectRequest =
           | {
               numbered_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "numbered_list_item"
@@ -9484,7 +9490,7 @@ export type BlockObjectRequest =
           | {
               quote: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "quote"
@@ -9507,7 +9513,7 @@ export type BlockObjectRequest =
           | {
               to_do: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 checked?: boolean
               }
@@ -9517,7 +9523,7 @@ export type BlockObjectRequest =
           | {
               toggle: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "toggle"
@@ -9534,7 +9540,7 @@ export type BlockObjectRequest =
           | {
               callout: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 icon?:
                   | { emoji: EmojiRequest; type?: "emoji" }
@@ -9636,7 +9642,7 @@ export type BlockObjectRequest =
           | { divider: EmptyObject; type?: "divider"; object?: "block" }
           | { breadcrumb: EmptyObject; type?: "breadcrumb"; object?: "block" }
           | {
-              table_of_contents: { color?: ApiColor }
+              table_of_contents: { color?: NotionColor }
               type?: "table_of_contents"
               object?: "block"
             }
@@ -9656,7 +9662,7 @@ export type BlockObjectRequest =
           | {
               heading_1: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -9666,7 +9672,7 @@ export type BlockObjectRequest =
           | {
               heading_2: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -9676,7 +9682,7 @@ export type BlockObjectRequest =
           | {
               heading_3: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 is_toggleable?: boolean
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
@@ -9686,7 +9692,7 @@ export type BlockObjectRequest =
           | {
               paragraph: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "paragraph"
@@ -9695,7 +9701,7 @@ export type BlockObjectRequest =
           | {
               bulleted_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "bulleted_list_item"
@@ -9704,7 +9710,7 @@ export type BlockObjectRequest =
           | {
               numbered_list_item: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "numbered_list_item"
@@ -9713,7 +9719,7 @@ export type BlockObjectRequest =
           | {
               quote: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "quote"
@@ -9736,7 +9742,7 @@ export type BlockObjectRequest =
           | {
               to_do: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 checked?: boolean
               }
@@ -9746,7 +9752,7 @@ export type BlockObjectRequest =
           | {
               toggle: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
               }
               type?: "toggle"
@@ -9763,7 +9769,7 @@ export type BlockObjectRequest =
           | {
               callout: {
                 rich_text: Array<RichTextItemRequest>
-                color?: ApiColor
+                color?: NotionColor
                 children?: Array<BlockObjectRequestWithoutChildren>
                 icon?:
                   | { emoji: EmojiRequest; type?: "emoji" }
@@ -9955,7 +9961,7 @@ export const getUser = {
   path: (p: GetUserPathParameters): string => `users/${p.user_id}`,
 } as const
 
-type ListUsersQueryParameters = {
+export type ListUsersQueryParameters = {
   start_cursor?: string
   page_size?: number
 }
@@ -9979,7 +9985,7 @@ export const listUsers = {
   path: (): string => `users`,
 } as const
 
-type CreatePageBodyParameters = {
+export type CreatePageBodyParameters = {
   parent:
     | { page_id: IdRequest; type?: "page_id" }
     | { database_id: IdRequest; type?: "database_id" }
@@ -10260,7 +10266,7 @@ type UpdatePagePathParameters = {
   page_id: IdRequest
 }
 
-type UpdatePageBodyParameters = {
+export type UpdatePageBodyParameters = {
   properties?:
     | Record<
         string,
@@ -10649,7 +10655,7 @@ type UpdateBlockBodyParameters =
       in_trash?: boolean
     }
   | {
-      table_of_contents: { color?: ApiColor }
+      table_of_contents: { color?: NotionColor }
       type?: "table_of_contents"
       archived?: boolean
       in_trash?: boolean
@@ -10672,7 +10678,7 @@ type UpdateBlockBodyParameters =
   | {
       heading_1: {
         rich_text: Array<RichTextItemRequest>
-        color?: ApiColor
+        color?: NotionColor
         is_toggleable?: boolean
       }
       type?: "heading_1"
@@ -10682,7 +10688,7 @@ type UpdateBlockBodyParameters =
   | {
       heading_2: {
         rich_text: Array<RichTextItemRequest>
-        color?: ApiColor
+        color?: NotionColor
         is_toggleable?: boolean
       }
       type?: "heading_2"
@@ -10692,7 +10698,7 @@ type UpdateBlockBodyParameters =
   | {
       heading_3: {
         rich_text: Array<RichTextItemRequest>
-        color?: ApiColor
+        color?: NotionColor
         is_toggleable?: boolean
       }
       type?: "heading_3"
@@ -10700,7 +10706,7 @@ type UpdateBlockBodyParameters =
       in_trash?: boolean
     }
   | {
-      paragraph: { rich_text: Array<RichTextItemRequest>; color?: ApiColor }
+      paragraph: { rich_text: Array<RichTextItemRequest>; color?: NotionColor }
       type?: "paragraph"
       archived?: boolean
       in_trash?: boolean
@@ -10708,7 +10714,7 @@ type UpdateBlockBodyParameters =
   | {
       bulleted_list_item: {
         rich_text: Array<RichTextItemRequest>
-        color?: ApiColor
+        color?: NotionColor
       }
       type?: "bulleted_list_item"
       archived?: boolean
@@ -10717,14 +10723,14 @@ type UpdateBlockBodyParameters =
   | {
       numbered_list_item: {
         rich_text: Array<RichTextItemRequest>
-        color?: ApiColor
+        color?: NotionColor
       }
       type?: "numbered_list_item"
       archived?: boolean
       in_trash?: boolean
     }
   | {
-      quote: { rich_text: Array<RichTextItemRequest>; color?: ApiColor }
+      quote: { rich_text: Array<RichTextItemRequest>; color?: NotionColor }
       type?: "quote"
       archived?: boolean
       in_trash?: boolean
@@ -10733,14 +10739,14 @@ type UpdateBlockBodyParameters =
       to_do: {
         rich_text?: Array<RichTextItemRequest>
         checked?: boolean
-        color?: ApiColor
+        color?: NotionColor
       }
       type?: "to_do"
       archived?: boolean
       in_trash?: boolean
     }
   | {
-      toggle: { rich_text: Array<RichTextItemRequest>; color?: ApiColor }
+      toggle: { rich_text: Array<RichTextItemRequest>; color?: NotionColor }
       type?: "toggle"
       archived?: boolean
       in_trash?: boolean
@@ -10757,7 +10763,7 @@ type UpdateBlockBodyParameters =
         icon?:
           | { emoji: EmojiRequest; type?: "emoji" }
           | { external: { url: TextRequest }; type?: "external" }
-        color?: ApiColor
+        color?: NotionColor
       }
       type?: "callout"
       archived?: boolean
@@ -10847,7 +10853,7 @@ type ListBlockChildrenPathParameters = {
   block_id: IdRequest
 }
 
-type ListBlockChildrenQueryParameters = {
+export type ListBlockChildrenQueryParameters = {
   start_cursor?: string
   page_size?: number
 }
@@ -10925,7 +10931,7 @@ type UpdateDatabasePathParameters = {
   database_id: IdRequest
 }
 
-type UpdateDatabaseBodyParameters = {
+export type UpdateDatabaseBodyParameters = {
   title?: Array<RichTextItemRequest>
   description?: Array<RichTextItemRequest>
   icon?:
@@ -11185,7 +11191,7 @@ type QueryDatabaseQueryParameters = {
   filter_properties?: Array<string>
 }
 
-type QueryDatabaseBodyParameters = {
+export type QueryDatabaseBodyParameters = {
   sorts?: Array<
     | { property: string; direction: "ascending" | "descending" }
     | {
@@ -11225,18 +11231,19 @@ export type QueryDatabaseParameters = QueryDatabasePathParameters &
   QueryDatabaseQueryParameters &
   QueryDatabaseBodyParameters
 
+export type QueryDatabaseResponseItem =
+  | PageObjectResponse
+  | PartialPageObjectResponse
+  | PartialDatabaseObjectResponse
+  | DatabaseObjectResponse
+
 export type QueryDatabaseResponse = {
   type: "page_or_database"
   page_or_database: EmptyObject
   object: "list"
   next_cursor: string | null
   has_more: boolean
-  results: Array<
-    | PageObjectResponse
-    | PartialPageObjectResponse
-    | PartialDatabaseObjectResponse
-    | DatabaseObjectResponse
-  >
+  results: Array<QueryDatabaseResponseItem>
 }
 
 export const queryDatabase = {
@@ -11255,12 +11262,16 @@ export const queryDatabase = {
     `databases/${p.database_id}/query`,
 } as const
 
-type ListDatabasesQueryParameters = {
+export type ListDatabasesQueryParameters = {
   start_cursor?: string
   page_size?: number
 }
 
 export type ListDatabasesParameters = ListDatabasesQueryParameters
+
+export type ListDatabasesResponseItem =
+  | PartialDatabaseObjectResponse
+  | DatabaseObjectResponse
 
 export type ListDatabasesResponse = {
   type: "database"
@@ -11268,7 +11279,7 @@ export type ListDatabasesResponse = {
   object: "list"
   next_cursor: string | null
   has_more: boolean
-  results: Array<PartialDatabaseObjectResponse | DatabaseObjectResponse>
+  results: Array<ListDatabasesResponseItem>
 }
 
 export const listDatabases = {
@@ -11591,3 +11602,107 @@ export const oauthToken = {
   bodyParams: ["grant_type", "code", "redirect_uri", "external_account"],
   path: (): string => `oauth/token`,
 } as const
+
+export type ExtractedNotionValue<T extends NotionPropertyType> = T extends
+  | NotionPropertyType.RICH_TEXT
+  | NotionPropertyType.TITLE
+  ? string | null
+  : T extends NotionPropertyType.FORMULA
+  ? string | number | boolean | null
+  : T extends NotionPropertyType.ROLLUP
+  ? Array<NotionProperty<T>> | NotionDateResponse | number | null
+  : T extends
+      | NotionPropertyType.RELATION
+      | NotionPropertyType.PEOPLE
+      | NotionPropertyType.MULTI_SELECT
+  ? string[]
+  : T extends
+      | NotionPropertyType.URL
+      | NotionPropertyType.EMAIL
+      | NotionPropertyType.PHONE_NUMBER
+      | NotionPropertyType.SELECT
+      | NotionPropertyType.STATUS
+  ? string | null
+  : T extends NotionPropertyType.NUMBER
+  ? number | null
+  : T extends NotionPropertyType.CHECKBOX
+  ? boolean
+  : T extends NotionPropertyType.DATE
+  ? NotionDateResponse | null
+  : T extends NotionPropertyType.FILES
+  ? NotionFile | null
+  : null
+
+export type NotionPropertyRequest<T extends NotionPropertyType> =
+  T extends NotionPropertyType.RICH_TEXT
+    ? { rich_text: TextRichTextItemRequest[] }
+    : T extends NotionPropertyType.TITLE
+    ? { title: TextRichTextItemRequest[] }
+    : T extends NotionPropertyType.URL
+    ? { url: string | null }
+    : T extends NotionPropertyType.EMAIL
+    ? { email: string | null }
+    : T extends NotionPropertyType.PHONE_NUMBER
+    ? { phone_number: string | null }
+    : T extends NotionPropertyType.SELECT
+    ? { select: { name: string } | null }
+    : T extends NotionPropertyType.DATE
+    ? { date: string | null }
+    : T extends NotionPropertyType.NUMBER
+    ? { number: number | null }
+    : T extends NotionPropertyType.CHECKBOX
+    ? { checkbox: boolean }
+    : T extends NotionPropertyType.STATUS
+    ? { status: { name: string } | null }
+    : T extends NotionPropertyType.RELATION
+    ? { relation: { id: string }[] }
+    : T extends NotionPropertyType.MULTI_SELECT
+    ? { multi_select: { name: string }[] }
+    : T extends NotionPropertyType.PEOPLE
+    ? { people: { id: string; object?: string }[] }
+    : T extends NotionPropertyType.FILES
+    ? { files: NotionFile[] }
+    : null
+
+export const notionStyleColor: { [key: string]: NotionColor } = {
+  "color:#9b9a97": NotionColor.GRAY,
+  "color:#64473a": NotionColor.BROWN,
+  "color:#d9730d": NotionColor.ORANGE,
+  "color:#dfab01": NotionColor.YELLOW,
+  "color:#0f7b6c": NotionColor.GREEN,
+  "color:#0b6e99": NotionColor.BLUE,
+  "color:#6940a5": NotionColor.PURPLE,
+  "color:#ad1a72": NotionColor.PINK,
+  "color:#e03e3e": NotionColor.RED,
+  "background-color:#ebeced": NotionColor.GRAY_BACKGROUND,
+  "background-color:#e9e5e3": NotionColor.BROWN_BACKGROUND,
+  "background-color:#faebdd": NotionColor.ORANGE_BACKGROUND,
+  "background-color:#fbf3db": NotionColor.YELLOW_BACKGROUND,
+  "background-color:#ddedea": NotionColor.GREEN_BACKGROUND,
+  "background-color:#ddebf1": NotionColor.BLUE_BACKGROUND,
+  "background-color:#eae4f2": NotionColor.PURPLE_BACKGROUND,
+  "background-color:#f4dfeb": NotionColor.PINK_BACKGROUND,
+  "background-color:#fbe4e4": NotionColor.RED_BACKGROUND,
+}
+
+export const notionColorStyles: Record<NotionColor, string> = {
+  [NotionColor.DEFAULT]: "color: #9b9a97;",
+  [NotionColor.GRAY]: "color: #9b9a97;",
+  [NotionColor.BROWN]: "color: #64473a;",
+  [NotionColor.ORANGE]: "color: #d9730d;",
+  [NotionColor.YELLOW]: "color: #dfab01;",
+  [NotionColor.GREEN]: "color: #0f7b6c;",
+  [NotionColor.BLUE]: "color: #0b6e99;",
+  [NotionColor.PURPLE]: "color: #6940a5;",
+  [NotionColor.PINK]: "color: #ad1a72;",
+  [NotionColor.RED]: "color: #e03e3e;",
+  [NotionColor.GRAY_BACKGROUND]: "background-color: #ebeced;",
+  [NotionColor.BROWN_BACKGROUND]: "background-color: #e9e5e3;",
+  [NotionColor.ORANGE_BACKGROUND]: "background-color: #faebdd;",
+  [NotionColor.YELLOW_BACKGROUND]: "background-color: #fbf3db;",
+  [NotionColor.GREEN_BACKGROUND]: "background-color: #ddedea;",
+  [NotionColor.BLUE_BACKGROUND]: "background-color: #ddebf1;",
+  [NotionColor.PURPLE_BACKGROUND]: "background-color: #eae4f2;",
+  [NotionColor.PINK_BACKGROUND]: "background-color: #f4dfeb;",
+  [NotionColor.RED_BACKGROUND]: "background-color: #fbe4e4;",
+}
